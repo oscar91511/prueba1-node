@@ -6,15 +6,26 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(repairsController.firstRepairs)
-  .post(repairsController.createRepair);
+  .get(
+    authMiddleware.protect,
+    authMiddleware.restrictionTo('employe'),
+    repairsController.findRepairs
+  )
+
+  .post(
+    validationMiddleware.createRepairValidation,
+    authMiddleware.protect,
+    repairsController.createRepair
+  );
 
 router
+  .use(authMiddleware.protect)
+  .use(authMiddleware.restrictTo('employee'))
+  .use('/:id', repairMiddleware.validRepair)
+  
   .route('/:id')
   .get(repairsController.firstRepair)
-  .patch(repairsController.updateRepair)
-  .delete(repairsController.deleteRepair);
-
-  
+  .patch(authMiddleware.protectAccountOwner, repairsController.updateRepair)
+  .delete(authMiddleware.protectAccountOwner, repairsController.deleteRepair);
 
 module.exports = router;
