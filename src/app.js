@@ -1,11 +1,45 @@
 const express = require('express');
 
-const usersRouter = require('./routes/users.routes');
-const repairsRouter = require('./routes/repairs.routes');
+const routeUsers = require('./routes/users.routes');
+const routeNRepairs = require('./routes/repairs.routes');
+const cors = require('cors');
+
+const helmet = require('helmet');
+const hpp = require('hpp');
+const sanitizer = require('perfect-express-sanitizer');
+const rateLimite = require('express-rate-limit');
+const morgan = require('morgan');
+
+const AppError = require('./utils/appError');
+const globalError = require('/controllers/error.controllers.js');
+
+const routeUsers = require('./routes/users.routes');
+const routeNRepairs = require('./routes/repairs.routes');
 
 const app = express();
-
+const limiter = rateLimite({
+  max: 5000, // limiti peticions
+  windows: 60 * 60 * 1000, // 1 hour
+  message: 'To many request from this IP ⚙️, Please try again in 1 hour🙏!',
+});
+app.use(helmet());
 app.use(express.json());
+app.use(hpp());
+app.use(cors());
+
+app.use(
+  sanitizer.clean({
+    xss: true,
+    nosql: true,
+    sql: true,
+  })
+);
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+app.use('/api/v1', limiter);
 
 app.use((req, res, next) => {
   const time = new Date().toISOString();
@@ -14,7 +48,17 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/v1/users', usersRouter);
-app.use('/api/v1/repairs', repairsRouter);
+app.use('/api/v1/users', routeUsers);
+app.use('/api/v1/repairs', routeNRepairs);
 
+app.all('*', (req, res, next) => {
+  return next(
+    new AppError(
+      `Sorry bad request!, not found ${req.originalUrl} on this server😲🫢😣!`,
+      404
+    )
+  );
+});
+
+app.use(globalError);
 module.exports = app;
