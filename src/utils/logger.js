@@ -8,7 +8,7 @@ module.exports = createLogger({
       (info) => `[${info.timestamp}] ${info.level} ${info.message} ${info.file}:${info.line}`
     )
   ),
-  transport: [
+  transports: [
     new transports.File({
       maxsize: 5120000,
       maxFiles: 5,

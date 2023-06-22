@@ -2,14 +2,14 @@ const AppError = require('../utils/appError');
 const logger = require('../utils/logger');
 
 const handleCastError23505 = () =>
-  new AppError('Duplicate field value: please use another value', 400);
+  new AppError('Duplicate field value: please use another value😬', 400);
 
 const handleJWTExpiredError = () => {
-  return new AppError('Your token has expired! Please log in again', 401);
+  return new AppError('The token has expired! Please log in again🫢😣', 401);
 };
 
 const handleJWTError = () => {
-  return new AppError('Invalid token. Please log in again', 401);
+  return new AppError('Invalid token. Please log in again🧨', 401);
 };
 
 const sendErrorDev = (err, res) => {
