@@ -39,22 +39,7 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError('not are the owner of this token!, Please try again😮', 401)
     );
   }
-  if (user.passwordChangedAt) {
-    const changedTimeStamp = parseInt(
-      user.passwordChangedAt.getTime() / 1000,
-      10
-    );
-
-    if (decoded.iat < changedTimeStamp) {
-      return next(
-        new AppError(
-          'User recently changed password!, please try again.😬🫢',
-          401
-        )
-      );
-    }
-  }
-
+ 
   req.sessionUser = user;
   next();
 });
