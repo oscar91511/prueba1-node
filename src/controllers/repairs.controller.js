@@ -3,7 +3,7 @@ const Users = require('../models/user.modal');
 const catchAsync = require('../utils/cathAsync');
 
 // * search first repair seend request
-exports.firstRepairs = catchAsync(async (req, res) => {
+exports.firstRepairs = catchAsync(async (req, res, next) => {
   const time = req.requesTime;
 
   const repairs = await Repair.findAll({
@@ -25,7 +25,7 @@ exports.firstRepairs = catchAsync(async (req, res) => {
 
 // * updateRepair, we seend recuest for update
 
-exports.updateRepair = async (req, res) => {
+exports.updateRepair = async (req, res, next) => {
   const { user, repair } = req;
 
   const updateRepair = await repair.update({
@@ -92,7 +92,7 @@ exports.firstRepair = catchAsync(async (req, res, next) => {
 
 // * deleteRespair, we seend petitions for delete repair
 
-exports.deleteRepair = catchAsync(async (req, res) => {
+exports.deleteRepair = catchAsync(async (req, res, next) => {
   const { repair } = req;
 
   await repair.update({
