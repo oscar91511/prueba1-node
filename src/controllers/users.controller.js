@@ -69,14 +69,13 @@ exports.createUser = catchAsync(async (req, res, next) => {
   const salt = await bcrypt.genSalt(12);
   const encryptedPassword = await bcrypt.hash(password, salt);
 
-  const token = await generateJWT(user.id);
-
   const user = await User.create({
     name: name.toLowerCase(),
     email: email.toLowerCase(),
     password: encryptedPassword,
     role,
   });
+  const token = await generateJWT(user.id);
 
   res.status(201).json({
     message: 'User created successfully👌😁',
@@ -88,80 +87,78 @@ exports.createUser = catchAsync(async (req, res, next) => {
       role: user.role,
     },
   });
+});
 
-  // * login user
+// * find user
 
-  exports.login = catchAsync(async (req, res, nex) => {
-    const { email, password } = req.body;
+exports.findUser = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
 
-    const user = await User.findOne({
-      where: {
-        email: email.toLowerCase(),
-        status: 'available',
-      },
-    });
-
-    if (!user) {
-      return next(
-        new AppError(`User with email:${email} was not found😮`, 404)
-      );
-    }
-
-    if (!(await bcrypt.compare(password, user.password))) {
-      return next(new AppError('wrong email or password😣', 401));
-    }
-    const token = await generateJWT(user.id);
-
-    res.status(200).json({
-      status: 'success',
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+  const oneUser = await User.findOne({
+    where: {
+      id,
+      status: 'available',
+    },
   });
 
-  // * find user
-
-  exports.findUser = catchAsync(async (req, res, next) => {
-    const { id } = req.params;
-
-    const oneUser = await User.findOne({
-      where: {
-        id,
-        status: 'available',
-      },
+  if (!oneUser) {
+    return res.status(404).json({
+      status: 'error',
+      message: `user with id: ${id} has not founded 🫢`,
     });
+  }
 
-    if (!oneUser) {
-      return res.status(404).json({
-        status: 'error',
-        message: `user with id: ${id} has not founded 🫢`,
-      });
-    }
+  return res.status(200).json({
+    status: 'success',
+    message: 'user found',
+    oneUser,
+  });
+});
 
-    return res.status(200).json({
-      status: 'success',
-      message: 'user found',
-      oneUser,
-    });
+// * login user
+
+exports.login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({
+    where: {
+      email: email.toLowerCase(),
+      status: 'available',
+    },
   });
 
-  //  * Deleted users
+  if (!user) {
+    return next(new AppError(`User with email:${email} was not found😮`, 404));
+  }
 
-  exports.deleteUser = catchAsync(async (req, res, next) => {
-    const { user } = req;
+  if (!(await bcrypt.compare(password, user.password))) {
+    return next(new AppError('wrong email or password😣', 401));
+  }
+  const token = await generateJWT(user.id);
 
-    await user.update({
-      status: 'disabled',
-    });
+  res.status(200).json({
+    status: 'success',
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  });
+});
 
-    res.status(200).json({
-      status: 'success',
-      message: `The user id:${user.id} has been delete 👌😁`,
-    });
+//  * Deleted users
+
+exports.deleteUser = catchAsync(async (req, res, next) => {
+  const { user } = req;
+
+  await user.update({
+    status: 'disabled',
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: `The user id:${user.id} has been delete 👌😁`,
   });
 });

@@ -1,17 +1,15 @@
 const express = require('express');
-
-const routeUsers = require('./routes/users.routes');
-const routeNRepairs = require('./routes/repairs.routes');
-const cors = require('cors');
-
 const helmet = require('helmet');
 const hpp = require('hpp');
 const sanitizer = require('perfect-express-sanitizer');
 const rateLimited = require('express-rate-limit');
 const morgan = require('morgan');
-
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/error.controllers');
+const cors = require('cors');
+
+const usersRouter = require('./routes/users.routes');
+const repairsRouter = require('./routes/repairs.routes');
 
 const app = express();
 const limiter = rateLimited({
@@ -45,8 +43,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/v1/users', routeUsers);
-app.use('/api/v1/repairs', routeNRepairs);
+app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/repairs', repairsRouter);
 
 app.all('*', (req, res, next) => {
   return next(
