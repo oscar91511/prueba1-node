@@ -53,6 +53,8 @@ exports.createRepairValidation = [
     .withMessage('Motors Number cannot be empty⚙️')
     .isLength({ min: 6 })
     .withMessage('Motors Number must be at least 6 characters⚙️'),
-  body('description').notEmpty().withMessage('The description cannot be empty😬,Please try again!'),
+  body('description')
+    .notEmpty()
+    .withMessage('The description cannot be empty😬,Please try again!'),
   validFields,
 ];

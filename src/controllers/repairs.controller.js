@@ -1,11 +1,17 @@
 const Repair = require('../models/repair.model');
+const Users = require('../models/user.modal');
+const catchAsync = require('../utils/cathAsync');
 
-exports.firstRepairs = async (req, res) => {
+// * search first repair seend request
+exports.firstRepairs = catchAsync(async (req, res) => {
   const time = req.requesTime;
 
   const repairs = await Repair.findAll({
     where: {
       status: 'pending',
+      attribute: {
+        exclude: ['status'],
+      },
     },
   });
   return res.json({
@@ -15,126 +21,86 @@ exports.firstRepairs = async (req, res) => {
     message: 'Repair Found',
     repairs,
   });
-};
+});
+
+// * updateRepair, we seend recuest for update
+
 exports.updateRepair = async (req, res) => {
-  try {
-    //😁 1. we get the product are update
-    const { id } = req.params;
-    //😅 2. we get the body infortmation for update
-    const { status } = req.body;
-    //😎  3. we search the product to update
-    const repairs = await Repair.findOne({
-      where: {
-        id,
-        status: 'pending',
+  const { user, repair } = req;
+
+  const updateRepair = await repair.update({
+    status: 'completed',
+  });
+  res.status(200).json({
+    status: 'success',
+    message: 'The repair has been updated😉👌😁',
+    repair: updateRepair,
+    user,
+  });
+};
+
+// * createRepair , we make the firts repair
+
+exports.createRepair = catchAsync(async (req, res, next) => {
+  // 1. get information of  req.Body
+  const { date, motorsNumber, description } = req.body;
+  // 2. create a repair using  dmodelo.
+  const repair = await Repair.create({
+    date,
+    motorsNumber: motorsNumber.toLowerCase(),
+    description,
+    userId: id,
+  });
+  // 3. we send request for the client
+  res.status(201).json({
+    message: 'The repair of Motorcycle has been created successfully👌⚙️',
+    repair,
+  });
+});
+
+// * findRepair, we search and find the repair
+
+exports.firstRepair = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  const theOneRepair = await Repair.findOne({
+    where: {
+      id,
+      status: 'pending😎',
+    },
+    include: [
+      {
+        model: Users,
+        attributes: ['id', 'name', 'email', 'role'],
       },
-    });
+    ],
+  });
 
-    if (!repairs) {
-      return res.status(400).json({
-        status: 'error',
-        message: `The repairs with id ${id} is wrong`,
-      });
-    }
-    // 😁 4. updathing!!
-    await Repair.update({ status });
-
-    // 😋 5. send confirm done!👌
-    return res.status(200).json({
-      status: 'success',
-      message: 'The repairs has been updated',
-    });
-  } catch (error) {
-    return res.status(500).json({
-      status: 'fail',
-      message: 'Something went very wrong😫🥴 😵‍💫',
+  if (!theOneRepair) {
+    return res.status(404).json({
+      status: 'error',
+      message: `The repair id: ${id} not found!😮🧨`,
     });
   }
-};
 
-exports.createRepair = async (req, res) => {
-  try {
-    // 1. get information of  req.Body
-    const { date,userId } = req.body;
+  return res.status(200).json({
+    status: 'success',
+    message: 'The repair has been founded👌👌',
+    theOneRepair,
+  });
+});
 
-    // 2. create a repair using  dmodelo.
+// * deleteRespair, we seend petitions for delete repair
 
-    const repair = await Repair.create({
-      date,
-      userId,
-    });
-    // 3. we send request for the client
+exports.deleteRepair = catchAsync(async (req, res) => {
+  const { repair } = req;
 
-    return res.status(201).json({
-      message: 'the repair has been created.🥳🥳🥳👌👌',
-      repair,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      status: 'fail',
-      message: 'Something went very wrong',
-    });
-  }
-};
+  await repair.update({
+    status: 'cancelled',
+  });
 
-exports.firstRepair = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const repair = await Repair.findOne({
-      where: {
-        id,
-        status: 'pending😎',
-      },
-    });
-
-    if (!repair) {
-      return res.status(400).json({
-        status: 'error',
-        message: `the repair with id ${id} not found`,
-      });
-    }
-
-    return res.status(200).json({
-      status: 'success',
-      message: 'Hello from the get products👌👌',
-      repair,
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'fail',
-      message: 'something went very wrong',
-    });
-  }
-};
-exports.deleteRepair = async (req, res) => {
-  try {
-    const { id } = req.params.id;
-
-    const repair = await Repair.findOne({
-      where: {
-        id,
-        status: true,
-      },
-    });
-
-    if (!repair) {
-      return res.status(404).json({
-        status: 'error',
-        message: `Repair with id ${id} not found`,
-      });
-    }
-
-    await repair.update({ status: 'Cancelled' });
-
-    return res.status(200).json({
-      status: 'success',
-      message: 'I am sorry you repais has been deleted 😥😶‍🌫️😶‍🌫️',
-    });
-  } catch (error) {
-    return res.status(500).json({
-      status: 'fail',
-      message: 'something went very wrong. 😣😣😣😣😢',
-    });
-  }
-};
+  res.status(200).json({
+    status: 'success',
+    message: `The repair id:${repair.id} has been deleted success!😒👌`,
+  });
+});

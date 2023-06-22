@@ -1,5 +1,5 @@
-const Repairs = require('../models/repairs.model');
-const Users = require('./users.model');
+const Repairs = require('../models/repair.model');
+const Users = require('./user.modal');
 
 const initModel = () => {
   Users.hasMany(Repairs, { foreignKey: 'userId' });

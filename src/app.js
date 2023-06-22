@@ -7,17 +7,14 @@ const cors = require('cors');
 const helmet = require('helmet');
 const hpp = require('hpp');
 const sanitizer = require('perfect-express-sanitizer');
-const rateLimite = require('express-rate-limit');
+const rateLimited = require('express-rate-limit');
 const morgan = require('morgan');
 
 const AppError = require('./utils/appError');
-const globalError = require('/controllers/error.controllers.js');
-
-const routeUsers = require('./routes/users.routes');
-const routeNRepairs = require('./routes/repairs.routes');
+const globalErrorHandler = require('./controllers/error.controllers');
 
 const app = express();
-const limiter = rateLimite({
+const limiter = rateLimited({
   max: 5000, // limiti peticions
   windows: 60 * 60 * 1000, // 1 hour
   message: 'To many request from this IP ⚙️, Please try again in 1 hour🙏!',
@@ -42,7 +39,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/v1', limiter);
 
 app.use((req, res, next) => {
-  const time = new Date().toISOString();
+  const time = new Date().toISOString(); // * request date
 
   req.requestTime = time;
   next();
@@ -60,5 +57,5 @@ app.all('*', (req, res, next) => {
   );
 });
 
-app.use(globalError);
+app.use(globalErrorHandler);
 module.exports = app;

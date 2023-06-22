@@ -4,7 +4,7 @@ const catchAsync = require('../utils/cathAsync');
 const jwt = require('jsonwebtoken');
 const Users = require('../models/user.modal');
 
-exports.protect = catchAsync(async (res, req, next) => {
+exports.protect = catchAsync(async (req, res, next) => {
   let token;
 
   if (
@@ -30,7 +30,7 @@ exports.protect = catchAsync(async (res, req, next) => {
   const user = await Users.findOne({
     where: {
       id: decoded.id,
-      status: 'avalible',
+      status: 'available',
     },
   });
 
@@ -39,6 +39,22 @@ exports.protect = catchAsync(async (res, req, next) => {
       new AppError('not are the owner of this token!, Please try again😮', 401)
     );
   }
+  if (user.passwordChangedAt) {
+    const changedTimeStamp = parseInt(
+      user.passwordChangedAt.getTime() / 1000,
+      10
+    );
+
+    if (decoded.iat < changedTimeStamp) {
+      return next(
+        new AppError(
+          'User recently changed password!, please try again.😬🫢',
+          401
+        )
+      );
+    }
+  }
+
   req.sessionUser = user;
   next();
 });
@@ -56,7 +72,7 @@ exports.protectAccountOwner = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.restrictTo = (...roles) => {
+exports.restrictionTo = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.sessionUser.role)) {
       return next(

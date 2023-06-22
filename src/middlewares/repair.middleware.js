@@ -14,7 +14,7 @@ exports.validRepair = catchAsync(async (res, req, next) => {
     include: [
       {
         model: Users,
-        atributes: ['id', 'name', 'email', 'role'],
+        attributes: ['id', 'name', 'email', 'role'],
       },
     ],
   });

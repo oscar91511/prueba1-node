@@ -1,6 +1,6 @@
-const Users = require('../models/users.model');
+const Users = require('../models/user.modal');
 const AppError = require('../utils/appError');
-const catchAsync = require('../utils/catchAsync');
+const catchAsync = require('../utils/cathAsync');
 
 exports.validUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;
