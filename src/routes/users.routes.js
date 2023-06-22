@@ -7,7 +7,6 @@ const usersMiddleware = require('../middlewares/users.middleware');
 
 const router = express.Router();
 
-
 router
   .route('/')
   .get(authMiddleware.protect, usersController.findUsers)
@@ -15,9 +14,9 @@ router
 
 router.post(
   '/login',
-  validationMiddleware.loginUserValidation, usersController.login
-)
-
+  validationMiddleware.loginUserValidation,
+  usersController.login
+);
 
 router.use(authMiddleware.protect);
 
