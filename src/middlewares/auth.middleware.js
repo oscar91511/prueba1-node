@@ -1,7 +1,7 @@
 const AppError = require('../utils/appError');
 const { promisify } = require('util');
-const catchAsync = require('../utils/cathAsync');
 const jwt = require('jsonwebtoken');
+const catchAsync = require('../utils/cathAsync');
 const Users = require('../models/user.modal');
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -9,16 +9,14 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   if (
     req.headers.authorization &&
-    req.headers.authorization.starswith('bearer')
+    req.headers.authorization.startsWith('Bearer')
   ) {
-    token = req.headers.authorization.split('')[1];
+    token = req.headers.authorization.split(' ')[1];
   }
+    console.log(token)
   if (!token) {
     return next(
-      new AppError(
-        'you not are logging yet!, Please login first to get acces🧨🫢',
-        401
-      )
+      new AppError('You have not logged in!, Please log in to get access', 401)
     );
   }
 
@@ -36,17 +34,17 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new AppError('not are the owner of this token!, Please try again😮', 401)
+      new AppError('The owner of this token it not longer available', 401)
     );
   }
- 
+console.log(user)
   req.sessionUser = user;
   next();
 });
 
 exports.protectAccountOwner = catchAsync(async (req, res, next) => {
   const { user, sessionUser } = req;
-  if (sessionUser.role === 'employe') {
+  if (sessionUser.role === 'employee') {
     next();
   } else {
     if (user.id !== sessionUser.id) {

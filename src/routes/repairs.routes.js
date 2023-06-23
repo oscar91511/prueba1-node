@@ -10,7 +10,7 @@ router
   .route('/')
   .get(
     authMiddleware.protect,
-    authMiddleware.restrictionTo('employe'),
+    authMiddleware.restrictionTo('employee'),
     repairsController.firstRepair
   )
 
@@ -22,7 +22,7 @@ router
 
 router
   .use(authMiddleware.protect)
-  .use(authMiddleware.restrictionTo('employe'))
+  .use(authMiddleware.restrictionTo('employee'))
   .use('/:id', repairMiddleware.validRepair)
   
   .route('/:id')

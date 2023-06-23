@@ -7,19 +7,16 @@ const AppError = require('../utils/appError');
 //  * find users
 
 exports.findUsers = catchAsync(async (req, res, next) => {
-  const time = req.requestTime;
-
   const users = await User.findAll({
     where: {
       status: 'available',
-      attributes: {
-        exclude: ['status', 'password'],
-      },
+    },
+    attributes: {
+      exclude: ['status', 'password'],
     },
   });
 
   return res.json({
-    requestTime: time,
     results: users.length,
     status: 'success',
     message: 'Users found👌😉',
@@ -76,7 +73,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
     role,
   });
   const token = await generateJWT(user.id);
-
+  
   res.status(201).json({
     message: 'User created successfully👌😁',
     token,

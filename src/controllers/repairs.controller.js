@@ -44,6 +44,7 @@ exports.updateRepair = async (req, res, next) => {
 exports.createRepair = catchAsync(async (req, res, next) => {
   // 1. get information of  req.Body
   const { date, motorsNumber, description } = req.body;
+  const { id } = req.sessionUser;
   // 2. create a repair using  dmodelo.
   const repair = await Repair.create({
     date,
