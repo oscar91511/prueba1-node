@@ -24,14 +24,17 @@ const sendErrorDev = (err, res) => {
 
 const sendErrorProd = (err, res) => {
   logger.info(err);
-  //Operational,send message to client
+
+  // * send message to client
+
   if (err.isOperational) {
     return res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
     });
   } else {
-    //Programming or other unknown error detail
+    // *Programming or other  error detail
+
     return res.status(500).json({
       status: 'fail',
       message: 'Something went very wrong!',
